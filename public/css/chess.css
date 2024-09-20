@@ -33,7 +33,7 @@
 
 
 .piece {
-    background-image: url('/images/chess_sprite_transparent.png');
+    background-image: url('../images/chess_sprite_transparent.png');
     background-repeat: no-repeat;
     background-size: 600% 200%;
 }
