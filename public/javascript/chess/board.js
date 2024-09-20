@@ -133,50 +133,50 @@ Board.prototype.selectPiece = function(clickedElement, selectedPiece) {
 Board.prototype.initiateGame = function() {
     // Create white pieces
     this.whitePieces = {
-        king: new King({ color: 'white', position: 'E1' }),
-        queen: new Queen({ color: 'white', position: 'D1' }),
+        king: new King({ color: 'white', position: 'E1' ,Board:this}),
+        queen: new Queen({ color: 'white', position: 'D1' ,Board:this}),
         bishops: [
-            new Bishop({ color: 'white', position: 'C1' }),
-            new Bishop({ color: 'white', position: 'F1' })
+            new Bishop({ color: 'white', position: 'C1' ,Board:this}),
+            new Bishop({ color: 'white', position: 'F1',Board:this })
         ],
         knights: [
-            new Knight({ color: 'white', position: 'B1' }),
-            new Knight({ color: 'white', position: 'G1' })
+            new Knight({ color: 'white', position: 'B1' ,Board:this}),
+            new Knight({ color: 'white', position: 'G1' ,Board:this})
         ],
         rooks: [
-            new Rook({ color: 'white', position: 'A1' }),
-            new Rook({ color: 'white', position: 'H1' })
+            new Rook({ color: 'white', position: 'A1',Board:this }),
+            new Rook({ color: 'white', position: 'H1' ,Board:this})
         ],
         pawns: []
     };
 
     // Create white pawns
     for (let i = 0; i < 8; i++) {
-        this.whitePieces.pawns.push(new Pawn({ color: 'white', position: String.fromCharCode(65 + i) + '2' }));
+        this.whitePieces.pawns.push(new Pawn({ color: 'white', position: String.fromCharCode(65 + i) + '2' ,Board:this}));
     }
 
     // Create black pieces
     this.blackPieces = {
-        king: new King({ color: 'black', position: 'E8' }),
-        queen: new Queen({ color: 'black', position: 'D8' }),
+        king: new King({ color: 'black', position: 'E8' ,Board:this}),
+        queen: new Queen({ color: 'black', position: 'D8' ,Board:this}),
         bishops: [
-            new Bishop({ color: 'black', position: 'C8' }),
-            new Bishop({ color: 'black', position: 'F8' })
+            new Bishop({ color: 'black', position: 'C8' ,Board:this}),
+            new Bishop({ color: 'black', position: 'F8' ,Board:this})
         ],
         knights: [
-            new Knight({ color: 'black', position: 'B8' }),
-            new Knight({ color: 'black', position: 'G8' })
+            new Knight({ color: 'black', position: 'B8' ,Board:this}),
+            new Knight({ color: 'black', position: 'G8' ,Board:this})
         ],
         rooks: [
-            new Rook({ color: 'black', position: 'A8' }),
-            new Rook({ color: 'black', position: 'H8' })
+            new Rook({ color: 'black', position: 'A8' ,Board:this}),
+            new Rook({ color: 'black', position: 'H8' ,Board:this})
         ],
         pawns: []
     };
 
     // Create black pawns
     for (let i = 0; i < 8; i++) {
-        this.blackPieces.pawns.push(new Pawn({ color: 'black', position: String.fromCharCode(65 + i) + '7' }));
+        this.blackPieces.pawns.push(new Pawn({ color: 'black', position: String.fromCharCode(65 + i) + '7' ,Board:this}));
     }
 };
 
