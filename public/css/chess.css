@@ -1,36 +1,41 @@
-#game-ct { 
+#game-ct {
     width: 400px;
     height: 400px;
     margin: 20px auto;
     border: 2px solid #333;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
-  }
-  #game-ct > li {
+    padding: 0;
+}
+
+#game-ct>li {
     list-style-type: none;
     padding: 0;
-  }
-  #game-ct > li > ul {
+}
+
+#game-ct>li>ul {
     height: 100%;
     padding: 0;
     margin: 0;
     display: contents;
-  }
-  #game-ct li > ul > li {
+}
+
+#game-ct li>ul>li {
     width: 100%;
     height: 50px;
     list-style-type: none;
-  }
-  #game-ct li:nth-child(odd) li:nth-child(even),
-  #game-ct li:nth-child(even) li:nth-child(odd) {
+    box-sizing: border-box;
+}
+
+#game-ct li:nth-child(odd) li:nth-child(even),
+#game-ct li:nth-child(even) li:nth-child(odd) {
     background-color: #b58863;
-  }
-  #game-ct li:nth-child(even) li:nth-child(even),
-  #game-ct li:nth-child(odd) li:nth-child(odd) {
+}
+
+#game-ct li:nth-child(even) li:nth-child(even),
+#game-ct li:nth-child(odd) li:nth-child(odd) {
     background-color: #f0d9b5;
-  }
-
-
+}
 
 .piece {
     background-image: url('../images/chess_sprite_transparent.png');
@@ -111,5 +116,3 @@
     border-radius: 5px;
     pointer-events: none;
 }
-
-
