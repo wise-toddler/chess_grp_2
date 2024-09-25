@@ -8,14 +8,13 @@ var Board = function(config){
 Board.prototype.addListeners = function(){
     this.$el.addEventListener('click', this.boardClicked.bind(this));
 }
-
-Board.prototype.generateBoardDom = function(config){
+Board.prototype.generateBoardDom = function(config) {
     let boardHTML = '<ul id="game-ct">';
     const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
     
     for (let col of columns) {
         boardHTML += `<li data-col="${col}"><ul>`;
-        for (let row = 1; row <= 8; row++) {
+        for (let row = 8; row >= 1; row--) { 
             boardHTML += `<li data-row="${row}"></li>`;
         }
         boardHTML += '</ul></li>';
@@ -24,7 +23,7 @@ Board.prototype.generateBoardDom = function(config){
     boardHTML += '</ul>';
     
     this.$el.innerHTML = boardHTML;    
-}
+};
 
 Board.prototype.getClickedBlock = function(clickEvent){
     // Get the clicked block
