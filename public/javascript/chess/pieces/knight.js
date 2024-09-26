@@ -6,12 +6,6 @@ var Knight = function(config){
 
 
 Knight.prototype = new Piece({});
-Knight.prototype.moveTo = function(newPosition)
-{
-    var newPos = newPosition.col + newPosition.row;
-    this.position = newPos;
-    this.render();
-}
 Knight.prototype.isValidMove = function(targetPosition)
 {
     var currentRow = parseInt(this.position[1], 10);

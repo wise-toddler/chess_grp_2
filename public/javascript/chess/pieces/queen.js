@@ -5,13 +5,6 @@ var Queen = function(config){
 
 Queen.prototype = new Piece({});
 
-// Modified moveTo function
-Queen.prototype.moveTo = function(targetPosition) {
-    var newPos = targetPosition.col + targetPosition.row;
-    this.position = newPos;
-    this.render();
-};
-
 Queen.prototype.isValidMove = function(targetPosition) {
     var currentRow = parseInt(this.position[1], 10);
     var targetRow = parseInt(targetPosition.row, 10);
@@ -33,6 +26,6 @@ Queen.prototype.isValidMove = function(targetPosition) {
         return this.pathIsClear(targetPosition);
     }
 
-    console.log("Invalid move: Queen must move diagonally or horizontally or vertically");
+    // console.log("Invalid move: Queen must move diagonally or horizontally or vertically");
     return false;
 };

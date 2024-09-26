@@ -4,11 +4,7 @@ var Pawn = function(config){
 };
 
 Pawn.prototype = new Piece({});
-Pawn.prototype.moveTo = function(targetPosition){
-    var newPos = targetPosition.col + targetPosition.row;
-    this.position = newPos;
-    this.render();
-}
+
 Pawn.prototype.isValidMove = function(targetPosition) {
     var currentRow = parseInt(this.position[1], 10);
     var targetRow = parseInt(targetPosition.row, 10);

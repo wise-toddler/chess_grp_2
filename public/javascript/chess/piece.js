@@ -2,12 +2,15 @@ var Piece = function(config){
     this.position = config.position;
     this.color = config.color;
     this.Board = config.Board;
+    this.hasMoved = false;
     if(this.position){
         this.render();        
     }    
 }
 Piece.prototype.moveTo = function(targetPosition){
-    console.log("Method not implemeted by: " + this.type);
+    this.position = targetPosition.col + targetPosition.row;
+    this.render();
+    this.hasMoved = true;
 }
 
 
@@ -89,7 +92,7 @@ Piece.prototype.pathIsClear = function(targetPosition){
         };
 
         if (this.Board.getPieceAt(intermediatePosition)) {
-            console.log("Invalid move: Path is blocked by another piece");
+            // console.log("Invalid move: Path is blocked by another piece");
             return false;
         }
 

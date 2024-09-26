@@ -6,12 +6,6 @@ var King = function(config){
 
 
 King.prototype = new Piece({});
-King.prototype.moveTo = function(newPosition)
-{
-    var newPos = newPosition.col + newPosition.row;
-    this.position = newPos;
-    this.render();
-}
 King.prototype.isValidMove = function(newPosition)
 {
     var currentCol = this.position.charAt(0);
@@ -25,6 +19,11 @@ King.prototype.isValidMove = function(newPosition)
 
     if (rowDiff <= 1 && colDiff <= 1) {
         return true;
+    }
+    // check for castling
+    if(!this.hasMoved)
+    {
+        // let see rook is present or not
     }
     return false;
 }

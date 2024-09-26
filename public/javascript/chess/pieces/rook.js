@@ -7,10 +7,6 @@ var Rook = function(config){
 
 Rook.prototype = new Piece({});
 
-Rook.prototype.moveTo = function(newPosition){
-    this.position = newPosition.col + newPosition.row;
-    this.render();
-}
 Rook.prototype.isValidMove = function(newPosition){
     let currentCol = this.position.charAt(0);
     let currentRow = parseInt(this.position.charAt(1));

@@ -4,12 +4,6 @@ var Bishop = function(config){
 };
 
 Bishop.prototype = new Piece({});
-Bishop.prototype.moveTo = function(targetPosition){
-    var newPos = targetPosition.col + targetPosition.row;
-    this.position = newPos;
-    this.render();
-}
-
 Bishop.prototype.isValidMove = function(targetPosition) {
     var currentRow = parseInt(this.position[1], 10);
     var targetRow = parseInt(targetPosition.row, 10);
