@@ -43,6 +43,58 @@ Piece.prototype.render = function(){
     }
 }
 
-Piece.prototype.kill = function(targetPiece){
-    console.log("Method not implemeted by: " + typeof(this));
+Piece.prototype.kill = function(){
+    console.log('removing piece', this);
+
+    const removePiece = (pieces, type, piece) => {
+        if (type === 'queen') delete pieces.queen;
+        else pieces[type + 's'] = pieces[type + 's'].filter(p => p !== piece);
+    };
+
+    const pieces = this.color === 'white' ? this.Board.whitePieces : this.Board.blackPieces;
+    removePiece(pieces, this.type, this);
+
+    this.$el.parentNode.removeChild(this.$el);
+    this.position = null;
+};
+
+Piece.prototype.isValidMove = function(){
+    console.log("Method not implemeted by: " + this.type);
+}
+
+Piece.prototype.pathIsClear = function(targetPosition){
+    var str = parseInt(this.position[1], 10);   
+    var stc = this.position[0].toUpperCase();
+    var endr = parseInt(targetPosition.row, 10);
+    var endc = targetPosition.col.toUpperCase();
+
+    let hdist = Math.abs(str - endr);
+    let vdist = Math.abs(stc.charCodeAt(0) - endc.charCodeAt(0));
+    
+    if(hdist !== 0 && vdist !== 0 && Math.abs(hdist) !== Math.abs(vdist)) {
+        // invalid move
+        return false;
+    }
+
+    let rowStep = hdist === 0 ? 0 : (endr - str) / hdist;
+    let colStep = vdist === 0 ? 0 : (endc.charCodeAt(0) - stc.charCodeAt(0)) / vdist;
+
+    var currentCheckRow = str + rowStep;
+    var currentCheckCol = stc.charCodeAt(0) + colStep;
+
+    while (currentCheckRow !== endr || currentCheckCol !== endc.charCodeAt(0)) {
+        var intermediatePosition = {
+            row: currentCheckRow.toString(),
+            col: String.fromCharCode(currentCheckCol)
+        };
+
+        if (this.Board.getPieceAt(intermediatePosition)) {
+            console.log("Invalid move: Path is blocked by another piece");
+            return false;
+        }
+
+        currentCheckRow += rowStep;
+        currentCheckCol += colStep;
+    }
+    return true;
 }
