@@ -2,6 +2,7 @@ var Board = function (config) {
     this.root_id = config.root_id;
     this.$el = document.getElementById(this.root_id);
     this.currentPlayer = 'white';
+    this.moves = [];
     this.generateBoardDom();
     this.addListeners();
 }
@@ -58,24 +59,148 @@ Board.prototype.clearSelection = function () {
     this.selectedPiece = null;
 };
 
+Board.prototype.kingSafe = function (piece, targetPosition) {
+    let kingSafe = true;
+    let oldPosition = piece.position;
+    piece.position = targetPosition.col + targetPosition.row;
+    let pieces = piece.color !== 'white' ? this.whitePieces : this.blackPieces;
+    let kingPosition = piece.color === 'white' ? this.whitePieces.king.position : this.blackPieces.king.position;
+    kingPosition = { row: kingPosition[1], col: kingPosition[0] };
+
+    for (let pieceType in pieces) {
+        if (pieceType !== 'queen' && pieceType !== 'king') {
+            for (let otherPiece of pieces[pieceType]) {
+                if (otherPiece.position !== piece.position && otherPiece.isValidMove(kingPosition)) {
+                    kingSafe = false;
+                    break;
+                }
+            }
+        } else {
+            let otherPiece = pieces[pieceType];
+            if (otherPiece.position !== piece.position && otherPiece.isValidMove(kingPosition)) {
+                kingSafe = false;
+                break;
+            }
+        }
+    }
+    piece.position = oldPosition;
+    return kingSafe;
+}
+Board.prototype.isKingInCheck = function (color) {
+    const king = color === 'white' ? this.whitePieces.king : this.blackPieces.king;
+    const kingPosition = { row: king.position[1], col: king.position[0] };
+
+    const opponentPieces = color === 'white' ? this.blackPieces : this.whitePieces;
+
+    for (let pieceType in opponentPieces) {
+        if (Array.isArray(opponentPieces[pieceType])) {
+            for (let piece of opponentPieces[pieceType]) {
+                if (piece.isValidMove(kingPosition)) {
+                    return true;
+                }
+            }
+        } else {
+            if (opponentPieces[pieceType].isValidMove(kingPosition)) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+Board.prototype.isCheckmate = function (color) {
+    const pieces = color === 'white' ? this.whitePieces : this.blackPieces;
+
+    for (let pieceType in pieces) {
+        if (pieceType !== 'queen' && pieceType !== 'king') {
+            for (let piece of pieces[pieceType]) {
+                // all moves 
+                for(let col='A';col<='H';col=String.fromCharCode(col.charCodeAt(0) + 1)){
+                    for(let row=1;row<9;row++){
+                        const targetPosition = { col: col, row: row.toString()};
+                        // console.log("Checking move for " + pieceType + " to " + targetPosition.col + targetPosition.row);
+                        if (piece.isValidMove(targetPosition)) {
+                            // console.log("Checking move for " + pieceType + " to " + targetPosition.col + targetPosition.row);
+                            if (this.kingSafe(piece, targetPosition)) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            const piece = pieces[pieceType];
+            // all moves
+            for(let col='A';col<='H';col++){
+                for(let row=1;row<=8;row++){
+                    const targetPosition = { col: col, row: row.toString() };
+                    // console.log("Checking move for " + pieceType + " to " + targetPosition.col + targetPosition.row);
+                    if (piece.isValidMove(targetPosition)) {
+                        if (this.kingSafe(piece, targetPosition)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return true;
+};
 Board.prototype.boardClicked = function (event) {
     // this.clearSelection();
     const clickedCell = this.getClickedBlock(event);
     const selectedPiece = this.getPieceAt(clickedCell)
-    // console.log("selectedPiece: ", selectedPiece);
     if (this.selectedPiece) {
         if (selectedPiece && selectedPiece.color === this.currentPlayer) {
             this.clearSelection();
             this.selectPiece(event.target, selectedPiece);
         }
         else {
-            if (this.selectedPiece.isValidMove(clickedCell)) {
+            let isValidMove = this.selectedPiece.isValidMove(clickedCell);
+            if (isValidMove) {
+                if (!this.kingSafe(this.selectedPiece, clickedCell)) {
+                    console.log("Invalid move: King is in check");
+                    this.clearSelection();
+                    return;
+                }
+                if (selectedPiece) {
+                    selectedPiece.kill(selectedPiece);
+                }
+                this.moves.push({
+                    piece: this.selectedPiece,
+                    from: { row: this.selectedPiece.position[1], col: this.selectedPiece.position[0] },
+                    to: clickedCell
+                });
                 this.selectedPiece.moveTo(clickedCell);
-                this.clearSelection();
+                // Special cases 
+                // Empasent
+                if (isValidMove === "empasent") {
+                    let lastMove = this.moves[this.moves.length - 1];
+                    let pawnposition = null;
+                    if (this.currentPlayer === 'white') {
+                        pawnposition = { row: parseInt(lastMove.to.row) - 1, col: lastMove.to.col };
+                    } else {
+                        pawnposition = { row: parseInt(lastMove.to.row) + 1, col: lastMove.to.col };
+                    }
+                    let pawn = this.getPieceAt(pawnposition);
+                    pawn.kill(pawn);
+                }
+                // Promotion : To be implemented
+                // Castling : To be implemented
+                // checkmate : To be implemented
                 this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
+                this.clearSelection();
+                if (this.isKingInCheck(this.currentPlayer)) {
+                    // check if checkmate
+                    console.log("Check!");
+                    if (this.isCheckmate(this.currentPlayer)) {
+                        console.log("Checkmate! " + (this.currentPlayer === 'white' ? 'Black' : 'White') + " wins!");
+                    }
+                }
+
             }
             else {
                 console.log("Invalid move for " + this.selectedPiece.type);
+                this.clearSelection();
             }
         }
     }
@@ -84,7 +209,6 @@ Board.prototype.boardClicked = function (event) {
             this.selectPiece(event.target, selectedPiece);
         }
     }
-
 }
 
 Board.prototype.getPieceAt = function (cell) {
