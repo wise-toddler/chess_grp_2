@@ -20,6 +20,16 @@
   <body>
     <h2 style="text-align: center;">Let's Play Chess</h2>
     <div id="chessboard-ct"></div>
+    <div id="promotion-container" style="display: none;">
+      <h2>Choose promotion piece:</h2>
+      <div id="promotion-options">
+          <button class="promotion-option" data-piece="queen">Queen</button>
+          <button class="promotion-option" data-piece="rook">Rook</button>
+          <button class="promotion-option" data-piece="bishop">Bishop</button>
+          <button class="promotion-option" data-piece="knight">Knight</button>
+      </div>
+  </div>
+
   </body>
   <script src="public/javascript/chess/piece.js"></script>
   <script src="public/javascript/chess/pieces/king.js"></script>

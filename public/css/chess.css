@@ -142,3 +142,35 @@
 #restart-button:hover {
     background-color: #0056b3;
 }
+
+#promotion-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 2px solid #333;
+    padding: 20px;
+    text-align: center;
+    z-index: 1000;
+}
+
+#promotion-options {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.promotion-option {
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #333;
+    transition: background-color 0.3s;
+}
+
+.promotion-option:hover {
+    background-color: #e0e0e0;
+}

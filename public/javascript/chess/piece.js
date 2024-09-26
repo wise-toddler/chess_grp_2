@@ -62,8 +62,7 @@ Piece.prototype.kill = function () {
     console.log('removing piece', this);
 
     const removePiece = (pieces, type, piece) => {
-        if (type === 'queen') delete pieces.queen;
-        else pieces[type + 's'] = pieces[type + 's'].filter(p => p !== piece);
+        pieces[type + 's'] = pieces[type + 's'].filter(p => p !== piece);
     };
 
     const pieces = this.color === 'white' ? this.Board.whitePieces : this.Board.blackPieces;
