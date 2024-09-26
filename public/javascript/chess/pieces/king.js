@@ -6,7 +6,7 @@ var King = function(config){
 
 
 King.prototype = new Piece({});
-King.prototype.move = function(newPosition)
+King.prototype.moveTo = function(newPosition)
 {
     var newPos = newPosition.col + newPosition.row;
     this.position = newPos;
