@@ -17,7 +17,6 @@ Bishop.prototype.isValidMove = function(targetPosition) {
     var targetCol = targetPosition.col.toUpperCase();
 
     if (Math.abs(currentRow - targetRow) !== Math.abs(currentCol.charCodeAt(0) - targetCol.charCodeAt(0))) {
-        console.log("Invalid move: Bishop must move diagonally");
         return false;
     }
     return this.pathIsClear(targetPosition);
