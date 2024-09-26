@@ -71,9 +71,6 @@ Board.prototype.kingSafe = function (piece, targetPosition) {
         kingPosition = { row: kingPosition[1], col: kingPosition[0] };
 
         for (let pieceType in this.blackPieces) {
-            console.log("pieceType: ", pieceType);
-            console.log("this.blackPieces[pieceType]: ", this.blackPieces[pieceType]);
-            console.log(typeof this.blackPieces[pieceType]);
             if (pieceType !== 'queen' && pieceType !== 'king'){
                 for (let piece of this.blackPieces[pieceType]) {
                     if (piece.isValidMove(kingPosition)) {
@@ -130,6 +127,9 @@ Board.prototype.boardClicked = function (event) {
                     this.clearSelection();
                     return;
                 }
+                if (selectedPiece) {
+                    selectedPiece.kill(selectedPiece);
+                }
                 this.moves.push({
                     piece: this.selectedPiece,
                     from: { row: this.selectedPiece.position[1], col: this.selectedPiece.position[0] },
@@ -156,6 +156,7 @@ Board.prototype.boardClicked = function (event) {
             }
             else {
                 console.log("Invalid move for " + this.selectedPiece.type);
+                this.clearSelection();
             }
         }
     }
