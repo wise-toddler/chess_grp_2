@@ -2,6 +2,7 @@ var Board = function (config) {
     this.root_id = config.root_id;
     this.$el = document.getElementById(this.root_id);
     this.currentPlayer = 'white';
+    this.moves = [];
     this.generateBoardDom();
     this.addListeners();
 }
@@ -58,19 +59,98 @@ Board.prototype.clearSelection = function () {
     this.selectedPiece = null;
 };
 
+Board.prototype.kingSafe = function (piece, targetPosition) {
+    let king = null;
+    let kingPosition = null;
+    let kingSafe = true;
+    let oldPosition = piece.position;
+    piece.position = targetPosition.col + targetPosition.row;
+    if (piece.color === 'white') {
+        king = this.whitePieces.king;
+        kingPosition = king.position;
+        kingPosition = { row: kingPosition[1], col: kingPosition[0] };
+
+        for (let pieceType in this.blackPieces) {
+            console.log("pieceType: ", pieceType);
+            console.log("this.blackPieces[pieceType]: ", this.blackPieces[pieceType]);
+            console.log(typeof this.blackPieces[pieceType]);
+            if (pieceType !== 'queen' && pieceType !== 'king'){
+                for (let piece of this.blackPieces[pieceType]) {
+                    if (piece.isValidMove(kingPosition)) {
+                        kingSafe = false;
+                        break;
+                    }
+                }
+            } else {
+                if (this.blackPieces[pieceType].isValidMove(kingPosition)) {
+                    kingSafe = false;
+                    break;
+                }
+            }
+        }
+
+
+    } else {
+        king = this.blackPieces.king;
+        kingPosition = king.position;
+        kingPosition = { row: kingPosition[1], col: kingPosition[0] };
+        for (let pieceType in this.whitePieces) {
+            if (pieceType !== 'queen' && pieceType !== 'king'){
+                for (let piece of this.whitePieces[pieceType]) {
+                    if (piece.isValidMove(kingPosition)) {
+                        kingSafe = false;
+                        break;
+                    }
+                }
+            } else {
+                if (this.whitePieces[pieceType].isValidMove(kingPosition)) {
+                    kingSafe = false;
+                    break;
+                }
+            }
+        }
+    }
+    piece.position = oldPosition;
+    return kingSafe;
+}
 Board.prototype.boardClicked = function (event) {
     // this.clearSelection();
     const clickedCell = this.getClickedBlock(event);
     const selectedPiece = this.getPieceAt(clickedCell)
-    // console.log("selectedPiece: ", selectedPiece);
     if (this.selectedPiece) {
         if (selectedPiece && selectedPiece.color === this.currentPlayer) {
             this.clearSelection();
             this.selectPiece(event.target, selectedPiece);
         }
         else {
-            if (this.selectedPiece.isValidMove(clickedCell)) {
+            let isValidMove = this.selectedPiece.isValidMove(clickedCell);
+            if (isValidMove) {
+                if (!this.kingSafe(this.selectedPiece, clickedCell)) {
+                    console.log("Invalid move: King is in check");
+                    this.clearSelection();
+                    return;
+                }
+                this.moves.push({
+                    piece: this.selectedPiece,
+                    from: { row: this.selectedPiece.position[1], col: this.selectedPiece.position[0] },
+                    to: clickedCell
+                });
                 this.selectedPiece.moveTo(clickedCell);
+                // Special cases 
+                // Empasent
+                if (isValidMove === "empasent") {
+                    let lastMove = this.moves[this.moves.length - 1];
+                    let pawnposition = null;
+                    if (this.currentPlayer === 'white') {
+                        pawnposition = { row: parseInt(lastMove.to.row) - 1, col: lastMove.to.col };
+                    } else {
+                        pawnposition = { row: parseInt(lastMove.to.row) + 1, col: lastMove.to.col };
+                    }
+                    let pawn = this.getPieceAt(pawnposition);
+                    pawn.kill(pawn);
+                }
+                // Promotion : To be implemented
+                // Castling : To be implemented
                 this.clearSelection();
                 this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
             }
