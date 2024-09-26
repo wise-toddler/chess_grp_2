@@ -82,7 +82,7 @@ Board.prototype.isSquareUnderAttack = function (position, color) {
 };
 Board.prototype.isCheckmate = function (color) {
     const pieces = color === 'white' ? this.whitePieces : this.blackPieces;
-    const king = color !== 'white' ? this.whitePieces.king : this.blackPieces.king;
+    const king = color === 'white' ? this.whitePieces.king : this.blackPieces.king;
     for (let pieceType in pieces) {
         if (pieceType !== 'queen' && pieceType !== 'king') {
             for (let piece of pieces[pieceType]) {
@@ -117,7 +117,7 @@ Board.prototype.endGame = function () {
     // Create and style the result element
     const resultElement = document.createElement('div');
     resultElement.id = 'game-result';
-    resultElement.textContent = "Checkmate! " + (this.currentPlayer === 'white' ? 'Black' : 'White') + " wins!";
+    resultElement.textContent = "Checkmate! " + (this.currentPlayer !== 'white' ? 'Black' : 'White') + " wins!";
     document.body.appendChild(resultElement);
 
     // Create and style the restart button
