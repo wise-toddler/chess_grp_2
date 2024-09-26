@@ -3,9 +3,19 @@ var King = function(config){
     this.constructor(config);
 };
 
-
-
 King.prototype = new Piece({});
+
+King.prototype.moveTo = function(targetPosition,isValidMove)
+{
+    if(isValidMove === "o-o" || isValidMove === "o-o-o")
+    {
+        let rook = this.Board.getPieceAt({col: isValidMove === "o-o" ? 'H' : 'A', row: parseInt(this.position[1])});
+        let rookTargetPosition = isValidMove === "o-o" ? {col: 'F', row: parseInt(this.position[1])} : {col: 'D', row: parseInt(this.position[1])};
+        rook.moveTo(rookTargetPosition);
+    }
+    Piece.prototype.moveTo.call(this, targetPosition);
+}
+
 King.prototype.isSafe = function(piece,targetPosition)
 {
     let ans=true;
@@ -41,13 +51,13 @@ King.prototype.isSafe = function(piece,targetPosition)
     return ans;
 }
 
-King.prototype.isValidMove = function(newPosition)
+King.prototype.isValidMove = function(targetPosition)
 {
     var currentCol = this.position.charAt(0);
     var currentRow = parseInt(this.position.charAt(1));
     
-    var newCol = newPosition.col;
-    var newRow = parseInt(newPosition.row);
+    var newCol = targetPosition.col;
+    var newRow = parseInt(targetPosition.row);
 
     var rowDiff = Math.abs(currentRow - newRow);
     var colDiff = Math.abs(currentCol.charCodeAt(0) - newCol.charCodeAt(0));
@@ -83,7 +93,7 @@ King.prototype.isValidMove = function(newPosition)
                 // the intermediate squares are empty and not under attack
                 if(!this.Board.getPieceAt({col: 'C', row: currentRow}) && !this.Board.getPieceAt({col: 'D', row: currentRow}))
                 {
-                    if(!this.Board.isSquareUnderAttack({col: 'B', row: currentRow}, othercolor) && !this.Board.isSquareUnderAttack({col: 'C', row: currentRow}, othercolor) && !this.Board.isSquareUnderAttack({col: 'D', row: currentRow}, othercolor))
+                    if(!this.Board.isSquareUnderAttack({col: 'C', row: currentRow}, othercolor) && !this.Board.isSquareUnderAttack({col: 'D', row: currentRow}, othercolor))
                     {
                         return "o-o-o";
                     }

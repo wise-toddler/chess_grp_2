@@ -1,11 +1,11 @@
-var Queen = function(config){
+var Queen = function (config) {
     this.type = 'queen';
     this.constructor(config);
 };
 
 Queen.prototype = new Piece({});
 
-Queen.prototype.isValidMove = function(targetPosition) {
+Queen.prototype.isValidMove = function (targetPosition) {
     var currentRow = parseInt(this.position[1], 10);
     var targetRow = parseInt(targetPosition.row, 10);
     var currentCol = this.position[0].toUpperCase();

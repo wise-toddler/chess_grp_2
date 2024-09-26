@@ -4,6 +4,16 @@ var Pawn = function(config){
 };
 
 Pawn.prototype = new Piece({});
+Pawn.prototype.moveTo = function(targetPosition,isValidMove)
+{
+    if(isValidMove === 'empasent')
+    {
+        let lastMove = this.Board.moves[this.Board.moves.length - 1];
+        let cappawn = this.Board.getPieceAt({col:targetPosition.col,row:lastMove.to.row});
+        cappawn.kill(); 
+    }
+    Piece.prototype.moveTo.call(this, targetPosition);
+}
 
 Pawn.prototype.isValidMove = function(targetPosition) {
     var currentRow = parseInt(this.position[1], 10);

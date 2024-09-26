@@ -59,15 +59,14 @@ Board.prototype.clearSelection = function () {
     this.selectedPiece = null;
 };
 
-Board.prototype.isSquareUnderAttack = function(position, color) 
-{
-    if(typeof position === 'string') 
+Board.prototype.isSquareUnderAttack = function (position, color) {
+    if (typeof position === 'string')
         position = { col: position[0], row: position[1] };
 
     const opponentPieces = color !== 'white' ? this.blackPieces : this.whitePieces;
 
     for (let pieceType in opponentPieces) {
-        if(pieceType !== 'queen' && pieceType !== 'king') {
+        if (pieceType !== 'queen' && pieceType !== 'king') {
             for (let piece of opponentPieces[pieceType]) {
                 if (piece.isValidMove(position)) {
                     return true;
@@ -83,7 +82,7 @@ Board.prototype.isSquareUnderAttack = function(position, color)
 };
 Board.prototype.isCheckmate = function (color) {
     const pieces = color === 'white' ? this.whitePieces : this.blackPieces;
-
+    const king = color !== 'white' ? this.whitePieces.king : this.blackPieces.king;
     for (let pieceType in pieces) {
         if (pieceType !== 'queen' && pieceType !== 'king') {
             for (let piece of pieces[pieceType]) {
@@ -91,7 +90,7 @@ Board.prototype.isCheckmate = function (color) {
                     for (let row = 1; row < 9; row++) {
                         const targetPosition = { col: col, row: row.toString() };
                         if (piece.isValidMove(targetPosition)) {
-                            if (this.kingSafe(piece, targetPosition)) {
+                            if (king.isSafe(piece, targetPosition)) {
                                 return false;
                             }
                         }
@@ -104,7 +103,7 @@ Board.prototype.isCheckmate = function (color) {
                 for (let row = 1; row <= 8; row++) {
                     const targetPosition = { col: col, row: row.toString() };
                     if (piece.isValidMove(targetPosition)) {
-                        if (this.kingSafe(piece, targetPosition)) {
+                        if (king.isSafe(piece, targetPosition)) {
                             return false;
                         }
                     }
@@ -114,6 +113,31 @@ Board.prototype.isCheckmate = function (color) {
     }
     return true;
 };
+Board.prototype.endGame = function () {
+    // Create and style the result element
+    const resultElement = document.createElement('div');
+    resultElement.id = 'game-result';
+    resultElement.textContent = "Checkmate! " + (this.currentPlayer === 'white' ? 'Black' : 'White') + " wins!";
+    document.body.appendChild(resultElement);
+
+    // Create and style the restart button
+    const restartButton = document.createElement('button');
+    restartButton.id = 'restart-button';
+    restartButton.textContent = 'Restart Game';
+    restartButton.onclick = () => location.reload();
+    document.body.appendChild(restartButton);
+}
+Board.prototype.moveDone = function () {
+    const oppositeColor = this.currentPlayer === 'white' ? 'black' : 'white';
+    const oppositeKing = this.currentPlayer === 'white' ? this.blackPieces.king : this.whitePieces.king;
+    if (this.isSquareUnderAttack(oppositeKing.position, this.currentPlayer)) {
+        console.log('check')
+        if (this.isCheckmate(oppositeColor)) {
+            console.log('checkmate');
+            this.endGame();
+        }
+    }
+}
 
 Board.prototype.boardClicked = function (event) {
     const clickedCell = this.getClickedBlock(event);
@@ -125,72 +149,17 @@ Board.prototype.boardClicked = function (event) {
         }
         else {
             let isValidMove = this.selectedPiece.isValidMove(clickedCell);
+            console.log(isValidMove);
             if (isValidMove) {
                 let king = this.currentPlayer === 'white' ? this.whitePieces.king : this.blackPieces.king;
-                if(!king.isSafe(this.selectedPiece,clickedCell))
-                {
+                if (!king.isSafe(this.selectedPiece, clickedCell)) {
                     console.log("Invalid move: King is in check");
                     this.clearSelection();
                     return;
                 }
-                if (selectedPiece) {
-                    selectedPiece.kill(selectedPiece);
-                }
-                this.moves.push({
-                    piece: this.selectedPiece,
-                    from: { row: this.selectedPiece.position[1], col: this.selectedPiece.position[0] },
-                    to: clickedCell
-                });
-                this.selectedPiece.moveTo(clickedCell);
-                // Empasent
-                if (isValidMove === "empasent") {
-                    let lastMove = this.moves[this.moves.length - 1];
-                    let pawnposition = null;
-                    if (this.currentPlayer === 'white') {
-                        pawnposition = { row: parseInt(lastMove.to.row) - 1, col: lastMove.to.col };
-                    } else {
-                        pawnposition = { row: parseInt(lastMove.to.row) + 1, col: lastMove.to.col };
-                    }
-                    let pawn = this.getPieceAt(pawnposition);
-                    pawn.kill(pawn);
-                }
-                // Promotion : To be implemented
-                // Castling
-                if(isValidMove === "o-o" || isValidMove === "o-o-o")
-                {
-                    let rook = this.getPieceAt({row:clickedCell.row,col:isValidMove === "o-o" ? 'H' : 'A'});
-                    let newRookPosition = {row:clickedCell.row,col:isValidMove === "o-o" ? 'F' : 'D'};
-                    rook.moveTo(newRookPosition);
-                }
+                this.selectedPiece.moveTo(clickedCell, isValidMove);
                 // checkmate
-                king = this.currentPlayer !== 'white' ? this.whitePieces.king : this.blackPieces.king;
-                if (this.isSquareUnderAttack(king.position, this.currentPlayer)) {
-                    // check if checkmate
-                    console.log("Check!");
-                    if (this.isCheckmate(this.currentPlayer)) {
-                        // Remove other elements on the board
-                        const boardElement = document.getElementById('board');
-                        if (boardElement) {
-                            while (boardElement.firstChild) {
-                                boardElement.removeChild(boardElement.firstChild);
-                            }
-                        }
-
-                        // Create and style the result element
-                        const resultElement = document.createElement('div');
-                        resultElement.id = 'game-result';
-                        resultElement.textContent = "Checkmate! " + (this.currentPlayer === 'white' ? 'Black' : 'White') + " wins!";
-                        document.body.appendChild(resultElement);
-
-                        // Create and style the restart button
-                        const restartButton = document.createElement('button');
-                        restartButton.id = 'restart-button';
-                        restartButton.textContent = 'Restart Game';
-                        restartButton.onclick = () => location.reload();
-                        document.body.appendChild(restartButton);
-
-                    }
-                }
+                this.moveDone();
                 this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
                 this.clearSelection();
             }
