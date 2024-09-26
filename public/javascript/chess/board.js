@@ -59,59 +59,63 @@ Board.prototype.clearSelection = function () {
     this.selectedPiece = null;
 };
 
-Board.prototype.kingSafe = function (piece, targetPosition) {
-    let king = null;
-    let kingPosition = null;
-    let kingSafe = true;
-    let oldPosition = piece.position;
-    piece.position = targetPosition.col + targetPosition.row;
-    if (piece.color === 'white') {
-        king = this.whitePieces.king;
-        kingPosition = king.position;
-        kingPosition = { row: kingPosition[1], col: kingPosition[0] };
+Board.prototype.isSquareUnderAttack = function(position, color) 
+{
+    if(typeof position === 'string') 
+        position = { col: position[0], row: position[1] };
 
-        for (let pieceType in this.blackPieces) {
-            if (pieceType !== 'queen' && pieceType !== 'king'){
-                for (let piece of this.blackPieces[pieceType]) {
-                    if (piece.isValidMove(kingPosition)) {
-                        kingSafe = false;
-                        break;
-                    }
-                }
-            } else {
-                if (this.blackPieces[pieceType].isValidMove(kingPosition)) {
-                    kingSafe = false;
-                    break;
+    const opponentPieces = color !== 'white' ? this.blackPieces : this.whitePieces;
+
+    for (let pieceType in opponentPieces) {
+        if(pieceType !== 'queen' && pieceType !== 'king') {
+            for (let piece of opponentPieces[pieceType]) {
+                if (piece.isValidMove(position)) {
+                    return true;
                 }
             }
+        } else {
+            if (opponentPieces[pieceType].isValidMove(position)) {
+                return true;
+            }
         }
+    }
+    return false;
+};
+Board.prototype.isCheckmate = function (color) {
+    const pieces = color === 'white' ? this.whitePieces : this.blackPieces;
 
-
-    } else {
-        king = this.blackPieces.king;
-        kingPosition = king.position;
-        kingPosition = { row: kingPosition[1], col: kingPosition[0] };
-        for (let pieceType in this.whitePieces) {
-            if (pieceType !== 'queen' && pieceType !== 'king'){
-                for (let piece of this.whitePieces[pieceType]) {
-                    if (piece.isValidMove(kingPosition)) {
-                        kingSafe = false;
-                        break;
+    for (let pieceType in pieces) {
+        if (pieceType !== 'queen' && pieceType !== 'king') {
+            for (let piece of pieces[pieceType]) {
+                for (let col = 'A'; col <= 'H'; col = String.fromCharCode(col.charCodeAt(0) + 1)) {
+                    for (let row = 1; row < 9; row++) {
+                        const targetPosition = { col: col, row: row.toString() };
+                        if (piece.isValidMove(targetPosition)) {
+                            if (this.kingSafe(piece, targetPosition)) {
+                                return false;
+                            }
+                        }
                     }
                 }
-            } else {
-                if (this.whitePieces[pieceType].isValidMove(kingPosition)) {
-                    kingSafe = false;
-                    break;
+            }
+        } else {
+            const piece = pieces[pieceType];
+            for (let col = 'A'; col <= 'H'; col++) {
+                for (let row = 1; row <= 8; row++) {
+                    const targetPosition = { col: col, row: row.toString() };
+                    if (piece.isValidMove(targetPosition)) {
+                        if (this.kingSafe(piece, targetPosition)) {
+                            return false;
+                        }
+                    }
                 }
             }
         }
     }
-    piece.position = oldPosition;
-    return kingSafe;
-}
+    return true;
+};
+
 Board.prototype.boardClicked = function (event) {
-    // this.clearSelection();
     const clickedCell = this.getClickedBlock(event);
     const selectedPiece = this.getPieceAt(clickedCell)
     if (this.selectedPiece) {
@@ -122,7 +126,9 @@ Board.prototype.boardClicked = function (event) {
         else {
             let isValidMove = this.selectedPiece.isValidMove(clickedCell);
             if (isValidMove) {
-                if (!this.kingSafe(this.selectedPiece, clickedCell)) {
+                let king = this.currentPlayer === 'white' ? this.whitePieces.king : this.blackPieces.king;
+                if(!king.isSafe(this.selectedPiece,clickedCell))
+                {
                     console.log("Invalid move: King is in check");
                     this.clearSelection();
                     return;
@@ -136,7 +142,6 @@ Board.prototype.boardClicked = function (event) {
                     to: clickedCell
                 });
                 this.selectedPiece.moveTo(clickedCell);
-                // Special cases 
                 // Empasent
                 if (isValidMove === "empasent") {
                     let lastMove = this.moves[this.moves.length - 1];
@@ -150,9 +155,44 @@ Board.prototype.boardClicked = function (event) {
                     pawn.kill(pawn);
                 }
                 // Promotion : To be implemented
-                // Castling : To be implemented
-                this.clearSelection();
+                // Castling
+                if(isValidMove === "o-o" || isValidMove === "o-o-o")
+                {
+                    let rook = this.getPieceAt({row:clickedCell.row,col:isValidMove === "o-o" ? 'H' : 'A'});
+                    let newRookPosition = {row:clickedCell.row,col:isValidMove === "o-o" ? 'F' : 'D'};
+                    rook.moveTo(newRookPosition);
+                }
+                // checkmate
+                king = this.currentPlayer !== 'white' ? this.whitePieces.king : this.blackPieces.king;
+                if (this.isSquareUnderAttack(king.position, this.currentPlayer)) {
+                    // check if checkmate
+                    console.log("Check!");
+                    if (this.isCheckmate(this.currentPlayer)) {
+                        // Remove other elements on the board
+                        const boardElement = document.getElementById('board');
+                        if (boardElement) {
+                            while (boardElement.firstChild) {
+                                boardElement.removeChild(boardElement.firstChild);
+                            }
+                        }
+
+                        // Create and style the result element
+                        const resultElement = document.createElement('div');
+                        resultElement.id = 'game-result';
+                        resultElement.textContent = "Checkmate! " + (this.currentPlayer === 'white' ? 'Black' : 'White') + " wins!";
+                        document.body.appendChild(resultElement);
+
+                        // Create and style the restart button
+                        const restartButton = document.createElement('button');
+                        restartButton.id = 'restart-button';
+                        restartButton.textContent = 'Restart Game';
+                        restartButton.onclick = () => location.reload();
+                        document.body.appendChild(restartButton);
+
+                    }
+                }
                 this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
+                this.clearSelection();
             }
             else {
                 console.log("Invalid move for " + this.selectedPiece.type);
@@ -165,7 +205,6 @@ Board.prototype.boardClicked = function (event) {
             this.selectPiece(event.target, selectedPiece);
         }
     }
-
 }
 
 Board.prototype.getPieceAt = function (cell) {

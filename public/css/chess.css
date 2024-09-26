@@ -116,3 +116,29 @@
     border-radius: 5px;
     pointer-events: none;
 }
+
+#game-result {
+    font-size: 2em;
+    color: #fff;
+    background-color: #000;
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+#restart-button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#restart-button:hover {
+    background-color: #0056b3;
+}
