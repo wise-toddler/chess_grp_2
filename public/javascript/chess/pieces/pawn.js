@@ -42,7 +42,7 @@ Pawn.prototype.moveTo = function (targetPosition, isValidMove, choice) {
     Piece.prototype.moveTo.call(this, targetPosition);
     if (isValidMove === 'empasent') {
         let lastMove = this.Board.moves[this.Board.moves.length - 1];
-        let cappawn = this.Board.getPieceAt({ col: targetPosition.col, row: lastMove.to.row });
+        let cappawn = this.Board.getPieceAt({ col: targetPosition.col, row: lastMove.to.row - 1 });
         cappawn.kill();
     }
     if (isValidMove === 'Promotion') {
