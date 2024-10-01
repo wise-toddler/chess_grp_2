@@ -58,7 +58,7 @@ King.prototype.isValidMove = function (targetPosition) {
         return targetPiece.color !== this.color;
     }
     // check for castling
-    if (!this.hasMoved) {
+    if (!this.hasMoved && !this.Board.isSquareUnderAttack({ col: currentCol, row: currentRow }, this.color)) {
         let othercolor = this.color === 'white' ? 'black' : 'white';
         // let see rook is present or not
         if (newCol === 'G') {
